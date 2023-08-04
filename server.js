@@ -17,14 +17,14 @@ const db = mysql.createConnection(
     user: 'root',
     // MySQL password
     password: '',
-    database: 'courses_db'
+    database: 'employee_db'
   },
-  console.log(`Connected to the courses_db database.`)
+  console.log(`Connected to the employee_db database.`)
 );
 
 // Hardcoded query: DELETE FROM course_names WHERE id = 3;
 
-db.query(`DELETE FROM course_names WHERE id = ?`, 3, (err, result) => {
+db.query(`DELETE FROM employee_names WHERE id = ?`, 3, (err, result) => {
   if (err) {
     console.log(err);
   }
@@ -32,7 +32,7 @@ db.query(`DELETE FROM course_names WHERE id = ?`, 3, (err, result) => {
 });
 
 // Query database
-db.query('SELECT * FROM course_names', function (err, results) {
+db.query('SELECT * FROM employee_names', function (err, results) {
   console.log(results);
 });
 
