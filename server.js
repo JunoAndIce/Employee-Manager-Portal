@@ -1,42 +1,43 @@
 const express = require('express');
-// Import and require mysql2
 const mysql = require('mysql2');
+const inquirer = require('inquirer');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-// Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Connect to database
 const db = mysql.createConnection(
   {
     host: 'localhost',
-    // MySQL username,
     user: 'root',
-    // MySQL password
-    password: '',
-    database: 'employee_db'
+    password: 'Parabellum',
+    database: 'movies_db'
   },
-  console.log(`Connected to the employee_db database.`)
+  console.log(`Connected to the movies_db database.`)
 );
 
-// Hardcoded query: DELETE FROM course_names WHERE id = 3;
-
-db.query(`DELETE FROM employee_names WHERE id = ?`, 3, (err, result) => {
-  if (err) {
-    console.log(err);
+inquirer.prompt([
+  {
+    type: ''
   }
-  console.log(result);
-});
+])
 
-// Query database
-db.query('SELECT * FROM employee_names', function (err, results) {
+// Count # of favorite books in_stock and # of favorite books not in_stock.
+db.query('SELECT * FROM movies', function (err, results) {
+  console.log(results);
+});
+// Count # of favorite books in_stock and # of favorite books not in_stock.
+db.query('SELECT COUNT(id) AS total_count FROM favorite_books GROUP BY in_stock', function (err, results) {
   console.log(results);
 });
 
-// Default response for any other request (Not Found)
+// Gets # of books and groups by section, grabs max, min, and average quantity.
+db.query('SELECT SUM(quantity) AS total_in_section, MAX(quantity) AS max_quantity, MIN(quantity) AS min_quantity, AVG(quantity) AS avg_quantity FROM favorite_books GROUP BY section', function (err, results) {
+  console.log(results);
+});
+
 app.use((req, res) => {
   res.status(404).end();
 });
