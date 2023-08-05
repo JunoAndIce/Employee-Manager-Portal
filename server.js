@@ -22,6 +22,28 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
+
+
+let results;
+
+const validateDB = async (input) => {
+  if (isNaN(input)){
+    return "please enter a number";
+  }
+
+  db.query(`SELECT id FROM department WHERE department.id = ${input}`, function (err, results) {
+    console.log(results[0].id);
+    results = results[0].id;
+
+    if (results === undefined){
+      return 'ERROR!'
+    }
+    else {
+      return true;
+    }
+  });
+}
+
 const questions = [
   {
     type: 'list',
@@ -44,6 +66,36 @@ const questions = [
   }
 ];
 
+const departmentQuery = [
+  {
+    type: 'input',
+    name: 'name',
+    message: 'Enter a department name:',
+  }
+];
+
+const roleQuery = [
+  {
+    type: 'input',
+    name: 'title',
+    message: 'Enter a role name:',
+  },
+  {
+    type: 'input',
+    name: 'salary',
+    message: 'Enter the salary of the role:'
+  },
+  {
+    type: 'input',
+    name: 'dpt',
+    message: 'Enter the ID of the department this role is apart of:',
+    validate: validateDB
+  }
+];
+
+
+
+
 // Create a function to initialize app
 function init() {
   inquirer.prompt(questions)
@@ -57,20 +109,38 @@ function init() {
             console.log(results);
             return init();
           });
+        break;
 
         case 'Add a department':
-          
-          inquirer.prompt(questions)
+          inquirer.prompt(departmentQuery)
             .then(function (answers) {
-              console.log(answers);
-              
-              db.query('INSERT * FROM department', function (err, results) {
-                console.log(results);
+              db.query('INSERT INTO department(dpt_name) VALUES (?)', answers.name ,(err, results) => {
+                if (err) {
+                  res.status(400).json({ error: err.message });
+                  return;
+                }
+                console.log(`${answers.name} has been added to the department table.`);
                 return init();
               });
             })
-          
-          
+          break;
+        
+          case 'View all roles':
+            db.query('SELECT * FROM roles', function (err, results) {
+              console.log(results);
+              return init();
+            });
+          break;
+
+          case 'Add a role':
+            inquirer.prompt(roleQuery)
+            .then(function (answers) {
+              db.query('INSERT INTO roles (title, salary, department_id) VALUES (?)', answers.title,answers.salary, answers.dpt,(err, results) => {
+                console.log(`${answers.name} has been added to the department table.`);
+                return init();
+              });
+            })
+          break;
       }
     });
 };
