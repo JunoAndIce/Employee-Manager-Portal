@@ -24,25 +24,12 @@ const db = mysql.createConnection(
 
 
 
-let results;
-
-const validateDB = async (input) => {
-  if (isNaN(input)){
-    return "please enter a number";
-  }
-
-  db.query(`SELECT id FROM department WHERE department.id = ${input}`, function (err, results) {
-    console.log(results[0].id);
-    results = results[0].id;
-
-    if (results === undefined){
-      return 'ERROR!'
-    }
-    else {
-      return true;
-    }
+const departmentChoices = async () => {
+  db.query('SELECT * FROM department', function (err, results) {
+    const newArr = results.map(({ dpt_name, id }) => ({ 'name': dpt_name, 'value': id }))
+    console.log(newArr);
   });
-}
+};
 
 const questions = [
   {
@@ -86,10 +73,10 @@ const roleQuery = [
     message: 'Enter the salary of the role:'
   },
   {
-    type: 'input',
+    type: 'list',
     name: 'dpt',
     message: 'Enter the ID of the department this role is apart of:',
-    validate: validateDB
+    choices: departmentChoices()
   }
 ];
 
@@ -102,6 +89,7 @@ function init() {
     .then(function (answers) {
       console.log(answers);
 
+      // Check answers perform functions based on answer choices 
       switch (answers.mainMenu) {
 
         case 'View all departments':
