@@ -22,15 +22,6 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
-
-
-const departmentChoices = async () => {
-  db.query('SELECT * FROM department', function (err, results) {
-    const newArr = results.map(({ dpt_name, id }) => ({ 'name': dpt_name, 'value': id }))
-    console.log(newArr);
-  });
-};
-
 const questions = [
   {
     type: 'list',
@@ -61,28 +52,6 @@ const departmentQuery = [
   }
 ];
 
-const roleQuery = [
-  {
-    type: 'input',
-    name: 'title',
-    message: 'Enter a role name:',
-  },
-  {
-    type: 'input',
-    name: 'salary',
-    message: 'Enter the salary of the role:'
-  },
-  {
-    type: 'list',
-    name: 'dpt',
-    message: 'Enter the ID of the department this role is apart of:',
-    choices: departmentChoices()
-  }
-];
-
-
-
-
 // Create a function to initialize app
 function init() {
   inquirer.prompt(questions)
@@ -97,12 +66,12 @@ function init() {
             console.log(results);
             return init();
           });
-        break;
+          break;
 
         case 'Add a department':
           inquirer.prompt(departmentQuery)
             .then(function (answers) {
-              db.query('INSERT INTO department(dpt_name) VALUES (?)', answers.name ,(err, results) => {
+              db.query('INSERT INTO department(dpt_name) VALUES (?)', answers.name, (err, results) => {
                 if (err) {
                   res.status(400).json({ error: err.message });
                   return;
@@ -112,22 +81,54 @@ function init() {
               });
             })
           break;
-        
-          case 'View all roles':
-            db.query('SELECT * FROM roles', function (err, results) {
-              console.log(results);
-              return init();
-            });
+
+        case 'View all roles':
+          db.query('SELECT * FROM roles', function (err, results) {
+            console.log(results);
+            return init();
+          });
           break;
 
-          case 'Add a role':
-            inquirer.prompt(roleQuery)
-            .then(function (answers) {
-              db.query('INSERT INTO roles (title, salary, department_id) VALUES (?)', answers.title,answers.salary, answers.dpt,(err, results) => {
-                console.log(`${answers.name} has been added to the department table.`);
-                return init();
-              });
-            })
+        case 'Add a role':
+          db.query('SELECT * FROM department', function (err, results) {
+            const newArr = results.map(({ dpt_name, id }) => ({ 'name': dpt_name, 'value': id }))
+            inquirer.prompt([
+              {
+                type: 'input',
+                name: 'title',
+                message: 'Enter a role name:',
+              },
+              {
+                type: 'input',
+                name: 'salary',
+                message: 'Enter the salary of the role:',
+                validate: function (input) {
+                  if (isNaN(input)) {
+                    return 'Please enter a valid number'
+                  }
+                }
+              },
+              {
+                type: 'list',
+                name: 'dpt',
+                message: 'Enter the ID of the department this role is apart of:',
+                choices: newArr
+              }
+            ])
+              .then(function (answers) {
+                db.query('INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)', [answers.title, answers.salary, answers.dpt], (err, results) => {
+                  console.log(`${answers.title} has been added to the roles table.`);
+                  return init();
+                });
+              })
+          });
+          break;
+
+        case 'View all employees':
+          db.query('SELECT * FROM department', function (err, results) {
+            console.log(results);
+            return init();
+          });
           break;
       }
     });
