@@ -17,9 +17,9 @@ VALUES ("Lead Engineer", 180000, 1),
       ("Head Surgeon", 200000, 5),
       ("Therapist", 110000, 5);
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Tony","Bespen",1, NULL),
-      ("Jimmy","Atmos" 2, 1),
+INSERT INTO employee (first_name, last_name, roles_id, manager_id)
+VALUES ("Tony","Bespen", 1, NULL),
+      ("Jimmy","Atmos", 2, 1),
       ("Scott", "Pilgrim", 3, NULL),
       ("Justin", "Saint", 4, NULL),
       ("Anya", "Forger", 5, 6),
@@ -27,4 +27,4 @@ VALUES ("Tony","Bespen",1, NULL),
       ("Harry", "Osborne", 7, NULL),
       ("Yor", "Forger", 8, 7),
       ("Loid", "Forger", 9, NULL),
-      ("Reo" "Mikage", 10, 9);
+      ("Reo", "Mikage", 10, 9)
