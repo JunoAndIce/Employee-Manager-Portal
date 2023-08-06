@@ -14,7 +14,11 @@
 -- WHEN I choose to view all employees
 -- THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 
-SELECT employee.id AS ID, employee.first_name AS FirstName, employee.last_name AS LastName, roles.title AS JobTitle, roles.salary AS Salary, department.dpt_name AS Department, employee.manager_id AS ManagerID
-FROM employee
-JOIN roles on employee.roles_id = roles.id
-JOIN department on roles.department_id = department.id
+-- SELECT employee.id AS ID, employee.first_name AS FirstName, employee.last_name AS LastName, roles.title AS JobTitle, roles.salary AS Salary, department.dpt_name AS Department, employee.manager_id AS ManagerID
+-- FROM employee
+-- JOIN roles on employee.roles_id = roles.id
+-- JOIN department on roles.department_id = department.id
+USE employee_db
+UPDATE employee
+SET roles_id = '5'
+WHERE id = 3
