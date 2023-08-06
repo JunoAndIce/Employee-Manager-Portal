@@ -1,4 +1,4 @@
--- Add your code below and execute file in MySQL Shell --
+-- MOVE TO INDEX.JS --
 
 -- WHEN I choose to view all departments
 -- THEN I am presented with a formatted table showing department names and      department ids
@@ -19,6 +19,6 @@
 -- JOIN roles on employee.roles_id = roles.id
 -- JOIN department on roles.department_id = department.id
 
-UPDATE employee
-SET roles_id = '5'
-WHERE id = 3
+-- UPDATE employee
+-- SET roles_id = '5'
+-- WHERE id = 3

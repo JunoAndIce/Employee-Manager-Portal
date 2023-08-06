@@ -243,12 +243,22 @@ const runEmployeePortal = async (answers) => {
       });
       break;
     case `Exit`:
-      process.exit()
+      db.end();
+      console.log('See you later!')
   }
 }
 
 // Create a function to initialize app
 function init() {
+  
+  inquirer.prompt(questions)
+    .then(function (answers) {
+      runEmployeePortal(answers);
+      // Check answers perform functions based on answer choices 
+    });
+};
+// Dirty title call.
+function showTitle() {
   console.log(`
                 _______  __   __  _______  ___      _______  __   __  _______  _______ 
                |       ||  |_|  ||       ||   |    |       ||  | |  ||       ||       |
@@ -265,13 +275,9 @@ function init() {
                |   |    |       ||   |  ||  |   |  |   _   ||       |
                |___|    |_______||___|  ||  |___|  |__| |__||_______|
   `)
-  inquirer.prompt(questions)
-    .then(function (answers) {
-      runEmployeePortal(answers);
-      // Check answers perform functions based on answer choices 
-    });
-};
+}
 
+showTitle();
 init();
 
 app.use((req, res) => {
