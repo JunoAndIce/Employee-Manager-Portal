@@ -34,7 +34,7 @@ const questions = [
   }
 ];
 
-const  runEmployeePortal = async(answers) => {
+const runEmployeePortal = async (answers) => {
   switch (answers.mainMenu) {
 
     case 'View all departments':
@@ -48,7 +48,7 @@ const  runEmployeePortal = async(answers) => {
       break;
 
     case 'Add a department':
-      inquirer.prompt( [
+      inquirer.prompt([
         {
           type: 'input',
           name: 'name',
@@ -79,7 +79,7 @@ const  runEmployeePortal = async(answers) => {
 
     case 'Add a role':
       db.query(`SELECT * FROM department`, function (err, results) {
-         // Mapping the object to an array with name/value pair.
+        // Mapping the object to an array with name/value pair.
         const newArr = results.map(({ dpt_name, id }) => ({ 'name': dpt_name, 'value': id }))
         inquirer.prompt([
           {
@@ -125,7 +125,7 @@ const  runEmployeePortal = async(answers) => {
 
     case 'Add an employee':
       db.query('SELECT * FROM roles', function (err, results) {
-         // Mapping the object to an array with name/value pair.
+        // Mapping the object to an array with name/value pair.
         const roleArr = results.map(({ title, id }) => ({ 'name': title, 'value': id }))
         if (err) throw err;
 
@@ -163,7 +163,7 @@ const  runEmployeePortal = async(answers) => {
 
             .then(function (answers) {
               // set manager to true null.
-              if (answers.manager === 'null'){
+              if (answers.manager === 'null') {
                 answers.manager = null;
               }
               db.query('INSERT INTO employee (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)', [answers.firstName, answers.lastName, answers.role, answers.manager], (err, results) => {
@@ -176,84 +176,97 @@ const  runEmployeePortal = async(answers) => {
       });
       break;
 
-      case `Update an employee's role`:
-        db.query('SELECT * FROM roles', function (err, results) {
+    case `Update an employee's role`:
+      db.query('SELECT * FROM roles', function (err, results) {
 
-          const roleArr = results.map(({ title, id }) => ({ 'name': title, 'value': id }))
+        const roleArr = results.map(({ title, id }) => ({ 'name': title, 'value': id }))
+        if (err) throw err;
+
+        db.query('SELECT * FROM employee', function (err, results) {
+          // Mapping the object to an array with name/value pair.
+          const empArr = results.map(({ first_name, last_name, id }) => ({ 'name': first_name + " " + last_name, 'value': id }))
+          const manArr = results.map(({ first_name, last_name, id }) => ({ 'name': first_name + " " + last_name, 'value': id }))
+          // Pushing NULL as a choice into the array.
+          manArr.push('null')
           if (err) throw err;
 
-          db.query('SELECT * FROM employee', function (err, results) {
-            // Mapping the object to an array with name/value pair.
-            const empArr = results.map(({ first_name, last_name, id }) => ({ 'name': first_name + " " + last_name, 'value': id }))
-            const manArr = results.map(({ first_name, last_name, id }) => ({ 'name': first_name + " " + last_name, 'value': id }))
-            // Pushing NULL as a choice into the array.
-            manArr.push('null')
-            if (err) throw err;
+          inquirer.prompt([
+            {
+              type: 'list',
+              name: 'employee',
+              message: `Select the employee you would like to edit:`,
+              choices: empArr,
+            },
+            {
+              type: 'list',
+              name: 'role',
+              message: `Select this employee's new role:`,
+              choices: roleArr
+            },
+            {
+              type: 'list',
+              name: 'change',
+              message: `Do you want to change this employee's manager?`,
+              choices: ['Yes', 'No']
+            },
+            {
+              type: 'list',
+              name: 'manager',
+              message: `Select a new manager for this employee:`,
+              choices: manArr,
+              when: (answers) => answers.change === 'Yes'
+            },
+          ])
 
-            inquirer.prompt([
-              {
-                type: 'list',
-                name: 'employee',
-                message: `Select the employee you would like to edit:`,
-                choices: empArr,
-              },
-              {
-                type: 'list',
-                name: 'role',
-                message: `Select this employee's new role:`,
-                choices: roleArr
-              },
-              {
-                type: 'list',
-                name: 'change',
-                message: `Do you want to change this employee's manager?`,
-                choices: ['Yes', 'No']
-              },
-              {
-                type: 'list',
-                name: 'manager',
-                message: `Select a new manager for this employee:`,
-                choices: manArr,
-                when: (answers) => answers.change === 'Yes'
-              },
-            ])
+            .then(function (answers) {
 
-              .then(function (answers) {
+              if (answers.change === 'No') {
+                db.query('UPDATE employee SET roles_id = ? WHERE id = ?', [answers.role, answers.employee], (err, results) => {
+                  console.log(`Employee ID ${answers.employee} has been updated.`);
+                  return init();
+                });
+              }
 
-                if (answers.change === 'No'){
-                  db.query('UPDATE employee SET roles_id = ? WHERE id = ?', [answers.role, answers.employee], (err, results) => {
-                    console.log(`Employee ID ${answers.employee} has been updated.`);
-                    return init();
-                  });
-                } 
-
-                if (answers.change ==='Yes') {
-                  // set manager to true null.
-                  if (answers.manager === 'null'){
-                    answers.manager = null;
-                  }
-                  db.query('UPDATE employee SET roles_id = ?, manager_id = ? WHERE id = ?', [answers.role, answers.manager, answers.employee], (err, results) => {
-                    if (err) throw err;
-                    console.log(`Employee ID ${answers.employee} has been updated.`);
-                    return init();
-                  });
+              if (answers.change === 'Yes') {
+                // set manager to true null.
+                if (answers.manager === 'null') {
+                  answers.manager = null;
                 }
-              })
-          });
+                db.query('UPDATE employee SET roles_id = ?, manager_id = ? WHERE id = ?', [answers.role, answers.manager, answers.employee], (err, results) => {
+                  if (err) throw err;
+                  console.log(`Employee ID ${answers.employee} has been updated.`);
+                  return init();
+                });
+              }
+            })
         });
-        break;
-
-        case `Exit`:
-          process.exit()
-        break;
+      });
+      break;
+    case `Exit`:
+      process.exit()
   }
 }
 
 // Create a function to initialize app
 function init() {
+  console.log(`
+                _______  __   __  _______  ___      _______  __   __  _______  _______ 
+               |       ||  |_|  ||       ||   |    |       ||  | |  ||       ||       |
+               |    ___||       ||    _  ||   |    |   _   ||  |_|  ||    ___||    ___|
+               |   |___ |       ||   |_| ||   |    |  | |  ||       ||   |___ |   |___ 
+               |    ___||       ||    ___||   |___ |  |_|  ||_     _||    ___||    ___|
+               |   |___ | ||_|| ||   |    |       ||       |  |   |  |   |___ |   |___ 
+               |_______||_|   |_||___|    |_______||_______|  |___|  |_______||_______|
+                _______  _______  ______   _______  _______  ___     
+               |       ||       ||    _ | |       ||   _   ||   |    
+               |    _  ||   _   ||   | || |_     _||  |_|  ||   |    
+               |   |_| ||  | |  ||   |_||   |   |  |       ||   |    
+               |    ___||  |_|  ||    __ |  |   |  |       ||   |___ 
+               |   |    |       ||   |  ||  |   |  |   _   ||       |
+               |___|    |_______||___|  ||  |___|  |__| |__||_______|
+  `)
   inquirer.prompt(questions)
     .then(function (answers) {
-      console.log(answers);
       runEmployeePortal(answers);
       // Check answers perform functions based on answer choices 
     });
