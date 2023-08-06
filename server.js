@@ -196,6 +196,7 @@ function init() {
   
                 const empArr = results.map(({ first_name, last_name, id }) => ({ 'name': first_name + " " + last_name, 'value': id }))
                 const manArr = results.map(({ first_name, last_name, id }) => ({ 'name': first_name + " " + last_name, 'value': id }))
+                manArr.push('null')
                 if (err) throw err;
   
                 inquirer.prompt([
@@ -222,26 +223,29 @@ function init() {
                     name: 'manager',
                     message: `Select a new manager for this employee:`,
                     choices: manArr,
-                    when: (answers) =>
-                    {
-                      answers.change === 'Yes'
-                    }
+                    when: (answers) => answers.change === 'Yes'
                   },
                 ])
   
                   .then(function (answers) {
-                    if (!answers.manager){
+
+                    if (answers.change === 'No'){
                       db.query('UPDATE employee SET roles_id = ? WHERE id = ?', [answers.role, answers.employee], (err, results) => {
                         console.log(`Employee ID ${answers.employee} has been updated.`);
                         return init();
                       });
-                    } else {
-                      db.query('UPDATE employee SET roles_id = ? manager_id = ? WHERE id = ?', [answers.role, answers.manager, answers.employee], (err, results) => {
+                    } 
+
+                    if (answers.change ==='Yes') {
+                      if (answers.manager === 'null'){
+                        answers.manager = null;
+                      }
+                      db.query('UPDATE employee SET roles_id = ?, manager_id = ? WHERE id = ?', [answers.role, answers.manager, answers.employee], (err, results) => {
+                        if (err) throw err;
                         console.log(`Employee ID ${answers.employee} has been updated.`);
                         return init();
                       });
                     }
-
                   })
               });
             });

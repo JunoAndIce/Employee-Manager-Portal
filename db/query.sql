@@ -18,7 +18,7 @@
 -- FROM employee
 -- JOIN roles on employee.roles_id = roles.id
 -- JOIN department on roles.department_id = department.id
-USE employee_db
+
 UPDATE employee
 SET roles_id = '5'
 WHERE id = 3
